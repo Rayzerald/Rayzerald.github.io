@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Altanometro</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        #timer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.2rem;
+        }
+
+        #percentage {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        #flag-image {
+            max-width: 500px;
+            transition: filter 2s linear; /* Transizione fluida di 2 secondi */
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #check-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #reset-btn {
+            background-color: #ff4444;
+            color: white;
+        }
+
+        #check-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div id="timer"></div>
+    <h1>Altanometro</h1>
+    <div id="percentage">100%</div>
+    <img id="flag-image" src="confederate_flag.png" alt="Flag">
+    <div class="buttons">
+        <button id="check-btn">Check current status</button>
+        <button id="reset-btn">Reset</button>
+    </div>
+
+    <script>
+        // Timer dal 10 giugno 2024
+        const startDate = new Date('2024-06-10T00:00:00');
+        function updateTimer() {
+            const now = new Date();
+            const diff = now - startDate;
+
+            const seconds = Math.floor(diff / 1000) % 60;
+            const minutes = Math.floor(diff / (1000 * 60)) % 60;
+            const hours = Math.floor(diff / (1000 * 60 * 60)) % 24;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24)) % 30;
+            const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30)) % 12;
+            const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+
+            document.getElementById('timer').innerText = 
+                `${years} anni, ${months} mesi, ${days} giorni, ${hours} ore, ${minutes} minuti, ${seconds} secondi`;
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // Funzionalità percentuale e immagine
+        const percentageDisplay = document.getElementById('percentage');
+        const flagImage = document.getElementById('flag-image');
+        const checkBtn = document.getElementById('check-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        let isRunning = false;
+
+        checkBtn.addEventListener('click', () => {
+            if (!isRunning) {
+                isRunning = true;
+                checkBtn.disabled = true;
+                let percentage = 100;
+                const startTime = Date.now();
+
+                function update() {
+                    const elapsed = Date.now() - startTime;
+                    percentage = Math.max(100 - (elapsed / 20), 0); // 2000ms / 100 = 20ms per punto percentuale
+                    percentageDisplay.innerText = `${Math.round(percentage)}%`;
+                    const grayscale = 100 - percentage;
+                    flagImage.style.filter = `grayscale(${grayscale}%)`;
+
+                    if (percentage > 0) {
+                        requestAnimationFrame(update);
+                    }
+                }
+                requestAnimationFrame(update);
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (isRunning) {
+                isRunning = false;
+                checkBtn.disabled = false;
+                percentageDisplay.innerText = '100%';
+                flagImage.style.filter = 'grayscale(0%)';
+            }
+        });
+    </script>
+</body>
+</html>
