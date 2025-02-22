@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Altanometro</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            color: #333;
+        }
+        #percentage {
+            font-size: 1.5em;
+            margin: 10px 0;
+            color: #666;
+        }
+        #image {
+            width: 300px;
+            height: auto;
+            transition: filter 0.1s linear;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            margin: 0 10px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #resetBtn {
+            background-color: #f44336;
+        }
+        #resetBtn:hover {
+            background-color: #da190b;
+        }
+        #checkBtn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Altanometro</h1>
+    <div id="percentage">100%</div>
+    <img id="image" src="confederate_flag.png" alt="Altanometro Image">
+    <div class="button-container">
+        <button id="checkBtn">Check current status</button>
+        <button id="resetBtn">Reset</button>
+    </div>
+
+    <script>
+        const image = document.getElementById('image');
+        const checkBtn = document.getElementById('checkBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const percentageDisplay = document.getElementById('percentage');
+        let animationFrame;
+        let isRunning = false;
+
+        checkBtn.addEventListener('click', startFade);
+        resetBtn.addEventListener('click', reset);
+
+        function startFade() {
+            if (isRunning) return;
+            isRunning = true;
+            checkBtn.disabled = true;
+            
+            const duration = 2000; // 2 secondi
+            const startTime = performance.now();
+            
+            function updateFade(timestamp) {
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const percentage = Math.round(100 - (progress * 100));
+                const grayscale = progress * 100;
+
+                percentageDisplay.textContent = `${percentage}%`;
+                image.style.filter = `grayscale(${grayscale}%)`;
+
+                if (progress < 1) {
+                    animationFrame = requestAnimationFrame(updateFade);
+                } else {
+                    isRunning = false;
+                    checkBtn.disabled = false;
+                }
+            }
+            
+            animationFrame = requestAnimationFrame(updateFade);
+        }
+
+        function reset() {
+            cancelAnimationFrame(animationFrame);
+            image.style.filter = 'grayscale(0%)';
+            percentageDisplay.textContent = '100%';
+            isRunning = false;
+            checkBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>
