@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Altanometro</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            flex-direction: column;
+        }
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        #container {
+            text-align: center;
+            position: relative;
+        }
+        #percentage {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        #image {
+            width: 400px;
+            height: 300px;
+            transition: filter 2s linear;
+        }
+        #buttons {
+            margin-top: 20px;
+        }
+        #checkBtn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        #resetBtn {
+            background-color: #f44336;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        #timer {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="timer"></div>
+    <h1>Altanometro</h1>
+    <div id="container">
+        <div id="percentage">100%</div>
+        <img id="image" src="confederate_flag.png" alt="Immagine">
+        <div id="buttons">
+            <button id="checkBtn">Check current status</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        const percentageDiv = document.getElementById('percentage');
+        const image = document.getElementById('image');
+        const checkBtn = document.getElementById('checkBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const timerDiv = document.getElementById('timer');
+        let isRunning = false;
+
+        // Timer dal 10 giugno 2024
+        const startDate = new Date('2024-06-10T00:00:00');
+        function updateTimer() {
+            const now = new Date();
+            const diff = now - startDate;
+            
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            const months = Math.floor(days / 30);
+            const years = Math.floor(months / 12);
+
+            const displaySeconds = seconds % 60;
+            const displayMinutes = minutes % 60;
+            const displayHours = hours % 24;
+            const displayDays = days % 30;
+            const displayMonths = months % 12;
+
+            timerDiv.textContent = `${years}y ${displayMonths}m ${displayDays}d ${displayHours}h ${displayMinutes}m ${displaySeconds}s`;
+        }
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // Funzione per animare percentuale e immagine
+        function startCountdown() {
+            if (isRunning) return;
+            isRunning = true;
+            checkBtn.disabled = true;
+
+            let percentage = 100;
+            const startTime = Date.now();
+
+            function update() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / 2000, 1);
+                percentage = Math.round(100 * (1 - progress));
+                
+                percentageDiv.textContent = `${percentage}%`;
+                image.style.filter = `grayscale(${progress * 100}%)`;
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // Reset
+        function reset() {
+            isRunning = false;
+            checkBtn.disabled = false;
+            percentageDiv.textContent = '100%';
+            image.style.filter = 'grayscale(0%)';
+        }
+
+        checkBtn.addEventListener('click', startCountdown);
+        resetBtn.addEventListener('click', reset);
+    </script>
+</body>
+</html>
